@@ -1,0 +1,19 @@
+{
+  "name": "bun",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "mysql2": "^3.6.3"
+  },
+  "scripts": {
+    "start": "bun index.ts",
+    "start:cluster": "bun spawn.ts"
+  }
+}

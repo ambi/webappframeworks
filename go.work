@@ -1,0 +1,9 @@
+go 1.21.3
+
+use (
+	./echo
+	./fiber
+	./gin
+	./go-fasthttp
+	./go-nethttp
+)
