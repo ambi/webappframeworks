@@ -1,5 +1,6 @@
-import cluster from 'cluster';
+import cluster from 'node:cluster';
 import os from 'node:os';
+import { parseArgs }  from 'node:util';
 import view from '@fastify/view';
 import Fastify from 'fastify';
 import handlebars from 'handlebars';
@@ -14,7 +15,6 @@ async function serve() {
     viewExt: 'handlebars',
     layout: 'views/layouts/main.handlebars',
   });
-
 
   app.get('/json', (req, res) => {
     return res.send({ message: 'Hello, World!' });
@@ -31,7 +31,7 @@ async function serve() {
     return res.send(world);
   });
 
-  app.get<{Querystring: { n: string }}>('/queries', async (req, res) => {
+  app.get<{ Querystring: { n: string } }>('/queries', async (req, res) => {
     const results = [];
     const queries = Math.min(queryNumber(req.query.n) || 1, 500);
 
@@ -44,7 +44,7 @@ async function serve() {
     return res.send(results);
   });
 
-  app.get<{Querystring: { n: string }}>('/updates', async (req, res) => {
+  app.get<{ Querystring: { n: string } }>('/updates', async (req, res) => {
     const results = [];
     const queries = Math.min(queryNumber(req.query.n) || 1, 500);
 
@@ -76,28 +76,46 @@ async function serve() {
 function queryNumber(value: string | string[] | undefined) {
   if (!value) return 0;
   if (typeof value === 'string') {
-    return parseInt(value);
+    return Number.parseInt(value);
   }
   if (value.length === 0) return 0;
-  return parseInt(value[0]);
+  return Number.parseInt(value[0]);
 }
 
-const numCPUs = os.cpus().length;
+function runClusterMode() {
+  const numCPUs = os.cpus().length;
 
-if (cluster.isPrimary) {
-  console.log(`Primary ${process.pid} is running`);
+  if (cluster.isPrimary) {
+    console.log(`Primary ${process.pid} is running`);
 
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
+    for (let i = 0; i < numCPUs; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      console.log(`worker ${worker.process.pid} died`);
+    });
+  } else {
+    console.log(`Secondary ${process.pid} is running`);
+
+    serve().catch(console.error);
   }
-
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`worker ${worker.process.pid} died`);
-  });
-} else {
-  console.log(`Secondary ${process.pid} is running`);
-
-  serve().catch(console.error);
 }
 
-// serve().catch(console.error);
+function main() {
+  const options = {
+    cluster: {
+      type: 'boolean',
+      short: 'c',
+      default: false
+    },
+  } as const;
+  const { values } = parseArgs({ options });
+
+  if (values.cluster) {
+    runClusterMode();
+  } else {
+    serve().catch(console.error);
+  }
+}
+main();

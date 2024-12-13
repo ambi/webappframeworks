@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"runtime"
 	"sort"
 	"strconv"
@@ -271,17 +272,26 @@ func main() {
 
 	initDB()
 
-	// http.HandleFunc("/json", jsonHandler)
-	// http.HandleFunc("/db", dbHandler)
-	// http.HandleFunc("/queries", queriesHandler)
-	// http.HandleFunc("/fortunes", fortunesHandler)
-	// http.HandleFunc("/updates", updatesHandler)
-	// http.HandleFunc("/plaintext", plaintextHandler)
-	// log.Fatal(http.ListenAndServe(":8080", nil))
-
-	s := &http.Server{
-		Addr:    ":8080",
-		Handler: apiHandler{},
+	mux := false
+	for i := range os.Args[1:] {
+		if os.Args[1:][i] == "-mux" {
+			mux = true
+		}
 	}
-	log.Fatal(s.ListenAndServe())
+
+	if mux {
+		http.HandleFunc("/json", jsonHandler)
+		http.HandleFunc("/db", dbHandler)
+		http.HandleFunc("/queries", queriesHandler)
+		http.HandleFunc("/fortunes", fortunesHandler)
+		http.HandleFunc("/updates", updatesHandler)
+		http.HandleFunc("/plaintext", plaintextHandler)
+		log.Fatal(http.ListenAndServe(":8080", nil))
+	} else {
+		s := &http.Server{
+			Addr:    ":8080",
+			Handler: apiHandler{},
+		}
+		log.Fatal(s.ListenAndServe())
+	}
 }

@@ -23,9 +23,9 @@ const db = mysql.createPool({
   database: 'hello_world',
 });
 
-const fortunesTmplFile = await Bun.file("fortunes.handlebars").text();
+const fortunesTmplFile = await Bun.file('fortunes.handlebars').text();
 const fortunesTmpl = Handlebars.compile(fortunesTmplFile);
-const responseHeaders = { 'Server': 'Bun' };
+const responseHeaders = { Server: 'Bun' };
 
 function jsonHandler() {
   return Response.json({ message: 'Hello, World!' }, { headers: responseHeaders });
@@ -85,7 +85,8 @@ async function fortunesHandler() {
     headers: {
       ...responseHeaders,
       'Content-Type': 'text/html; UTF-8',
-  }});
+    },
+  });
 }
 
 async function handler(req: Request) {
@@ -105,9 +106,9 @@ async function handler(req: Request) {
     case '/db':
       return await dbHandler();
     case '/queries':
-      return await queriesHandler(parseInt(url.searchParams.get('n') || '0'));
+      return await queriesHandler(Number.parseInt(url.searchParams.get('n') || '0'));
     case '/updates':
-      return await updatesHandler(parseInt(url.searchParams.get('n') || '0'));
+      return await updatesHandler(Number.parseInt(url.searchParams.get('n') || '0'));
     case '/fortunes':
       return await fortunesHandler();
     default:

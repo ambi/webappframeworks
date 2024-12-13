@@ -1,0 +1,21 @@
+{
+  "name": "node-hono",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.tsx",
+    "start": "tsc && node dist/index.js",
+    "start:production": "tsc && NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.1",
+    "hono": "^4.6.3",
+    "mysql2": "3.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.6.2"
+  }
+}
